@@ -29,11 +29,11 @@ class Tweecle
   end
   #
   #
-  def crawl
+  def crawl(method , *params)
     PStore.new(PSTORE_PATH).transaction do |pstore|
       count = 0
       since_id = pstore[:since_id] ||= 0
-      tweets = @rubytter.list_statuses('basyura' , 'all').reverse
+      tweets = @rubytter.__send__(method , *params).reverse
       tweets.each do |tweet|
         next if since_id >= tweet.id
         sleep 11 if count % 3 == 0 &&  count != 0
@@ -128,7 +128,7 @@ tweecle = Tweecle.new("config.yaml")
 
 while true
   begin
-    tweecle.crawl
+    tweecle.crawl(:list_statuses , 'basyura' , 'all')
     sleep 30
   rescue => e
     puts e
