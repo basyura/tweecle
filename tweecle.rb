@@ -17,7 +17,7 @@ require 'fileutils'
 #
 class Tweecle
   IMAGES_DIR  = File.expand_path("~/.tweecle/images")
-  PSTORE_PATH = File.expand_path("~/.tweecle/status.pstore")
+  PSTORE_PATH = File.expand_path("~/.tweecle")
   #
   #
   def initialize(config_path)
@@ -30,7 +30,8 @@ class Tweecle
   #
   #
   def crawl(method , *params)
-    PStore.new(PSTORE_PATH).transaction do |pstore|
+    path = File.join(PSTORE_PATH , method.to_s + ".pstore")
+    PStore.new(path).transaction do |pstore|
       count = 0
       since_id = pstore[:since_id] ||= 0
       tweets = @rubytter.__send__(method , *params).reverse
@@ -129,6 +130,7 @@ tweecle = Tweecle.new("config.yaml")
 while true
   begin
     tweecle.crawl(:list_statuses , 'basyura' , 'all')
+    tweecle.crawl(:replies)
     sleep 30
   rescue => e
     puts e
