@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'rubytter'
 require 'pstore'
 require 'time'
@@ -124,16 +122,3 @@ class Tweecle
     RUBY_PLATFORM =~ /mswin(?!ce)|mingw|cygwin|bccwin/
   end
 end
-
-tweecle = Tweecle.new("config.yaml")
-
-while true
-  begin
-    tweecle.crawl(:list_statuses , 'basyura' , 'all')
-    tweecle.crawl(:replies)
-    sleep 30
-  rescue => e
-    puts e
-  end
-end
-
