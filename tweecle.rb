@@ -3,7 +3,6 @@
 require 'rubytter'
 require 'pstore'
 require 'time'
-require 'growl_notify'
 require 'yaml'
 require 'fileutils'
 #
@@ -53,12 +52,20 @@ class Tweecle
     puts tweet.user.screen_name.to_s.ljust(15) + 
             ' : ' + tweet.text + 
             " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
-
-    GrowlNotify.normal(
-      :title       => tweet.user.screen_name , 
-      :description => tweet.text ,
-      :icon        => image_path(tweet.user.profile_image_url_https)
-    )
+    if isWin
+      GNTP.notify(
+        :app_name => "tweecle",
+        :title    => tweet.user.screen_name ,
+        :text     => tweet.text ,
+        :icon     => tweet.user.profile_image_url_https,
+      )
+    else
+      GrowlNotify.normal(
+        :title       => tweet.user.screen_name , 
+        :description => tweet.text ,
+        :icon        => image_path(tweet.user.profile_image_url_https)
+      )
+    end
   end
   #
   #
@@ -83,10 +90,21 @@ class Tweecle
   #
   #
   def initialize_growl
-    GrowlNotify.config do |gconf|
-      gconf.application_name      = "tweecle"
-      gconf.notifications         = ["notify"]
-      gconf.default_notifications = ["notify"] 
+
+    if isWin
+      require 'ruby_gntp'
+      growl = GNTP.new("tweecle")
+      growl.register(:notifications => [{
+        :name     => "notify",
+        :enabled  => true,
+      }])
+    else
+      require 'growl_notify'
+      GrowlNotify.config do |gconf|
+        gconf.application_name      = "tweecle"
+        gconf.notifications         = ["notify"]
+        gconf.default_notifications = ["notify"] 
+      end
     end
   end
   #
@@ -98,6 +116,11 @@ class Tweecle
       `curl --silent -o #{path} #{profile_image_url}`
     end
     path
+  end
+  #
+  #
+  def isWin
+    RUBY_PLATFORM =~ /mswin(?!ce)|mingw|cygwin|bccwin/
   end
 end
 
