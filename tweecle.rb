@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'rubytter'
-require 'oauth'
 require 'pstore'
 require 'time'
 require 'growl_notify'
