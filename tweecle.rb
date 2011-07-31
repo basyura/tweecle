@@ -6,6 +6,10 @@ require 'pstore'
 require 'time'
 require 'growl_notify'
 require 'yaml'
+require 'fileutils'
+#
+#  brew install growlnotify
+#  brew install curl
 #
 #  config.yaml
 #    consumer_key        : your consumer key
@@ -13,33 +17,22 @@ require 'yaml'
 #    access_token        : your access token
 #    access_token_secret : your access token secret
 #
-#
 class Tweecle
+  IMAGES_DIR  = File.expand_path("~/.tweecle/images")
+  PSTORE_PATH = File.expand_path("~/.tweecle/status.pstore")
   #
   #
   def initialize(config_path)
-    @config = YAML.load(open(config_path).read)
-    consumer = OAuth::Consumer.new(
-      @config["consumer_key"]    ,
-      @config["consumer_secret"] ,
-      :site => 'https://api.twitter.com'
-    )
-    access_token = OAuth::AccessToken.new(
-      consumer ,
-      @config["access_token"] ,
-      @config["access_token_secret"]
-    )
-    @rubytter = OAuthRubytter.new(access_token)
-    GrowlNotify.config do |gconf|
-      gconf.application_name      = "tweecle"
-      gconf.notifications         = ["notify"]
-      gconf.default_notifications = ["notify"] 
-    end
+    initialize_files
+    initialize_growl
+
+    @config   = YAML.load(open(config_path).read)
+    @rubytter = new_client(@config)
   end
   #
   #
   def crawl
-    PStore.new("/repos/ruby/tweet_crawler/_status").transaction do |pstore|
+    PStore.new(PSTORE_PATH).transaction do |pstore|
       count = 0
       since_id = pstore[:since_id] ||= 0
       tweets = @rubytter.list_statuses('basyura' , 'all').reverse
@@ -52,35 +45,71 @@ class Tweecle
       pstore[:since_id] = tweets[-1].id unless tweets.empty?
     end
   end
+  
   private
   #
   #
   def growl(tweet)
+    puts "-".ljust(100 , "-")
     puts tweet.user.screen_name.to_s.ljust(15) + 
             ' : ' + tweet.text + 
             " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
 
-    puts "-".ljust(100 , "-")
-
-    image_path = nil
-    if tweet.user.profile_image_url =~ /profile_images\/(.*?)\/(.*)/
-      image_path = "images/#{$1}_#{$2}"
-      unless File.exist?(image_path)
-        `wget #{tweet.user.profile_image_url} --output-document #{image_path}`
-      end
-    end
     GrowlNotify.normal(
-      :title => tweet.user.screen_name , 
+      :title       => tweet.user.screen_name , 
       :description => tweet.text ,
-      :icon => "/repos/ruby/tweet_crawler/#{image_path}"
+      :icon        => image_path(tweet.user.profile_image_url_https)
     )
+  end
+  #
+  #
+  def new_client(config)
+    consumer = OAuth::Consumer.new(
+      config["consumer_key"]    ,
+      config["consumer_secret"] ,
+      :site => 'https://api.twitter.com'
+    )
+    access_token = OAuth::AccessToken.new(
+      consumer ,
+      config["access_token"] ,
+      config["access_token_secret"]
+    )
+    OAuthRubytter.new(access_token)
+  end
+  #
+  #
+  def initialize_files
+    FileUtils.mkdir_p(IMAGES_DIR)
+  end
+  #
+  #
+  def initialize_growl
+    GrowlNotify.config do |gconf|
+      gconf.application_name      = "tweecle"
+      gconf.notifications         = ["notify"]
+      gconf.default_notifications = ["notify"] 
+    end
+  end
+  #
+  #
+  def image_path(profile_image_url)
+    return nil unless profile_image_url =~ /profile_images\/(.*?)\/(.*)/
+    path = File.join(IMAGES_DIR , "#{$1}_#{$2}")
+    unless File.exist?(path)
+      `curl --silent -o #{path} #{profile_image_url}`
+    end
+    path
   end
 end
 
 tweecle = Tweecle.new("config.yaml")
 
 while true
-  tweecle.crawl
-  sleep 30
+  begin
+    tweecle.crawl
+    sleep 30
+  rescue => e
+    puts e
+  end
 end
 

@@ -1,3 +1,2 @@
 config.yaml
-images/*
-_status
+.DS_Store
