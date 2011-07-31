@@ -11,6 +11,7 @@ while true
     sleep 30
   rescue => e
     puts e
+    sleep 5
   end
 end
 
