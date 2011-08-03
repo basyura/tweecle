@@ -37,7 +37,7 @@ class Tweecle
         next if since_id >= tweet.id
         sleep 11 if count % 3 == 0 &&  count != 0
         count += 1
-        growl(tweet)
+        growl(tweet , method)
       end
       pstore[:since_id] = tweets[-1].id unless tweets.empty?
     end
@@ -46,14 +46,19 @@ class Tweecle
   private
   #
   #
-  def growl(tweet)
+  def growl(tweet , type = "notify")
+    type = type.to_s
+    type = GrowlNotify.notifications.include?(type) ? type : "notify"
+
     puts "-".ljust(100 , "-")
     puts tweet.user.screen_name.to_s.ljust(15) + 
             ' : ' + tweet.text + 
             " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
+
     if isWin
       GNTP.notify(
         :app_name => "tweecle",
+        :name     => type ,
         :title    => tweet.user.screen_name ,
         :text     => tweet.text ,
         :icon     => tweet.user.profile_image_url_https,
@@ -62,7 +67,8 @@ class Tweecle
       GrowlNotify.normal(
         :title       => tweet.user.screen_name , 
         :description => tweet.text ,
-        :icon        => image_path(tweet.user.profile_image_url_https)
+        :icon        => image_path(tweet.user.profile_image_url_https) ,
+        :with_name   => type
       )
     end
   end
@@ -94,14 +100,14 @@ class Tweecle
       require 'ruby_gntp'
       growl = GNTP.new("tweecle")
       growl.register(:notifications => [{
-        :name     => "notify",
+        :name     => ["notify" , "replies"] ,
         :enabled  => true,
       }])
     else
       require 'growl_notify'
       GrowlNotify.config do |gconf|
         gconf.application_name      = "tweecle"
-        gconf.notifications         = ["notify"]
+        gconf.notifications         = ["notify" , "replies"]
         gconf.default_notifications = ["notify"] 
       end
     end
