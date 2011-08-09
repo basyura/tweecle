@@ -2,7 +2,7 @@
 
 require './tweecle'
 
-tweecle = Tweecle.new("config.yaml")
+tweecle = Tweecle.new("config.yaml" , STDOUT)
 
 while true
   begin

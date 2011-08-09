@@ -18,12 +18,13 @@ class Tweecle
   PSTORE_PATH = File.expand_path("~/.tweecle")
   #
   #
-  def initialize(config_path)
+  def initialize(config_path , out = nil)
     initialize_files
     initialize_growl
 
     @config   = YAML.load(open(config_path).read)
     @rubytter = new_client(@config)
+    @out      = out
   end
   #
   #
@@ -50,8 +51,8 @@ class Tweecle
     type = type.to_s
     type = GrowlNotify.notifications.include?(type) ? type : "notify"
 
-    puts "-".ljust(100 , "-")
-    puts tweet.user.screen_name.to_s.ljust(15) + 
+    log "-".ljust(100 , "-")
+    log tweet.user.screen_name.to_s.ljust(15) + 
             ' : ' + tweet.text + 
             " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
 
@@ -126,5 +127,11 @@ class Tweecle
   #
   def isWin
     RUBY_PLATFORM =~ /mswin(?!ce)|mingw|cygwin|bccwin/
+  end
+  #
+  #
+  def log(msg)
+    return unless @out
+    @out.puts msg
   end
 end
