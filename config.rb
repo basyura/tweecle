@@ -8,10 +8,16 @@ class Tweecle
     DEFAULT_PSTORE_PATH      = File.expand_path("~/.tweecle")
     DEFAULT_NOTIFY_NUMBER    = 3
     DEFAULT_SLEEPING_SECONDS = 11
+    TO_INT_METHODS = [:notify_number , :sleeping_seconds]
     #
     #
     def initialize(config_path)
       @config = YAML.load(open(config_path).read)
+    end
+    #
+    #
+    def pstore_path(name)
+      File.join(method_missing("pstore_path"), "#{name}.pstore")
     end
     #
     #
@@ -24,7 +30,7 @@ class Tweecle
           raise StandardError("No Such Config : #{method}")
         end
       end
-      value
+      TO_INT_METHODS.include?(method) ? value.to_i : value
     end
   end
 end

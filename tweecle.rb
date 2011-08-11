@@ -15,6 +15,7 @@ require './rubytter'
 #    access_token_secret : your access token secret
 #    notify_number       : notify number at a time
 #    sleeping_seconds    : sleeping seconds after notified
+#
 class Tweecle
   #
   #
@@ -23,20 +24,18 @@ class Tweecle
     @rubytter = Tweecle::Rubytter.new(@config)
     @notifier = Tweecle::Notifier.new(@config)
     @out      = out
-    initialize_files(@config)
   end
   #
   #
   def crawl(method , *params)
-    path = File.join(@config.pstore_path , method.to_s + ".pstore")
-    PStore.new(path).transaction do |pstore|
+    PStore.new(@config.pstore_path(method)).transaction do |pstore|
       count = 0
       since_id = pstore[:since_id] ||= 0
       tweets = @rubytter.__send__(method , *params).reverse
       tweets.each do |tweet|
         next if since_id >= tweet.id
-        if count % @config.notify_number.to_i == 0 &&  count != 0
-          sleep @config.sleeping_seconds.to_i 
+        if count % @config.notify_number == 0 &&  count != 0
+          sleep @config.sleeping_seconds 
         end
         count += 1
         @notifier.growl(tweet , method)
@@ -51,11 +50,6 @@ class Tweecle
   end
   
   private
-  #
-  #
-  def initialize_files(config)
-    FileUtils.mkdir_p(config.images_dir)
-  end
   #
   #
   def log(msg)
