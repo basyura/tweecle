@@ -1,9 +1,3 @@
-require 'pstore'
-require 'time'
-require 'fileutils'
-require './config'
-require './notifier'
-require './rubytter'
 #
 #  brew install growlnotify
 #  brew install curl
@@ -15,6 +9,18 @@ require './rubytter'
 #    access_token_secret : your access token secret
 #    notify_number       : notify number at a time
 #    sleeping_seconds    : sleeping seconds after notified
+#
+%w(
+  pstore
+  time
+  fileutils
+).each { |lib| require lib }
+%w(
+  config
+  notifier
+  rubytter
+).each { |name| require File.expand_path("../tweecle/#{name}", __FILE__) }
+#
 #
 class Tweecle
   #
@@ -31,25 +37,34 @@ class Tweecle
     PStore.new(@config.pstore_path(method)).transaction do |pstore|
       count = 0
       since_id = pstore[:since_id] ||= 0
-      tweets = @rubytter.__send__(method , *params).reverse
-      tweets.each do |tweet|
+      tweets(method , *params).each do |tweet|
         next if since_id >= tweet.id
         if count % @config.notify_number == 0 &&  count != 0
           sleep @config.sleeping_seconds 
         end
+        growl(tweet , method)
+        pstore[:since_id] = tweet.id
         count += 1
-        @notifier.growl(tweet , method)
 
         log "-".ljust(100 , "-")
         log tweet.user.screen_name.to_s.ljust(15) + 
           ' : ' + tweet.text + 
           " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
       end
-      pstore[:since_id] = tweets[-1].id unless tweets.empty?
     end
   end
   
   private
+  #
+  #
+  def tweets(method , *params)
+    @rubytter.__send__(method , *params).reverse
+  end
+  #
+  #
+  def growl(tweet , method)
+    @notifier.growl(tweet , method)
+  end
   #
   #
   def log(msg)
