@@ -29,8 +29,12 @@ class Tweecle
     #
     def growl(tweet , type = "notify")
       type = type.to_s
-      type = GrowlNotify.notifications.include?(type) ? type : "notify"
-      isWin ? gntp_notify(tweet , type) : growl_notify(tweet , type)
+      if isWin
+        gntp_notify(tweet , type)
+      else
+        type = GrowlNotify.notifications.include?(type) ? type : "notify"
+        growl_notify(tweet , type)
+      end
     end
 
     private
