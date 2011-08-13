@@ -19,6 +19,8 @@
   config
   notifier
   rubytter
+  notifier/ruby_gntp
+  notifier/growl_notify
 ).each { |name| require File.expand_path("../tweecle/#{name}", __FILE__) }
 #
 #
@@ -42,7 +44,7 @@ class Tweecle
         if count % @config.notify_number == 0 &&  count != 0
           sleep @config.sleeping_seconds 
         end
-        growl(tweet , method)
+        notify(tweet , method)
         pstore[:since_id] = tweet.id
         count += 1
 
@@ -62,8 +64,8 @@ class Tweecle
   end
   #
   #
-  def growl(tweet , method)
-    @notifier.growl(tweet , method)
+  def notify(tweet , method)
+    @notifier.notify(tweet , method)
   end
   #
   #

@@ -1,8 +1,6 @@
 require 'yaml'
 
 class Tweecle
-  #
-  #
   class Config
     DEFAULT_IMAGES_DIR       = File.expand_path("~/.tweecle/images")
     DEFAULT_PSTORE_PATH      = File.expand_path("~/.tweecle")

@@ -1,8 +1,6 @@
 require 'rubytter'
 
 class Tweecle
-  #
-  #
   class Rubytter
     #
     #
