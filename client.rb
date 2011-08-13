@@ -5,13 +5,13 @@ require './tweecle'
 tweecle = Tweecle.new("config.yaml" , STDOUT)
 
 while true
-#  begin
+  begin
     tweecle.crawl(:list_statuses , 'basyura' , 'all')
     tweecle.crawl(:replies)
     sleep 30
-#  rescue => e
-#    puts e
-#    sleep 5
-#  end
+  rescue => e
+    puts e
+    sleep 5
+  end
 end
 
