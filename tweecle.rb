@@ -49,9 +49,8 @@ class Tweecle
         count += 1
 
         log "-".ljust(100 , "-")
-        log tweet.user.screen_name.to_s.ljust(15) + 
-          ' : ' + tweet.text + 
-          " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
+        log "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
+            " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
       end
     end
   end
@@ -60,7 +59,7 @@ class Tweecle
   #
   #
   def tweets(method , *params)
-    @rubytter.__send__(method , *params).reverse
+    @rubytter.__send__(method , *params)
   end
   #
   #

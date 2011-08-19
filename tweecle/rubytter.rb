@@ -20,7 +20,19 @@ class Tweecle
     #
     #
     def method_missing(method , *args)
-      @client.__send__(method , *args)
+      @client.__send__(method , *args).reverse.map do |tweet|
+        tweet.extend TweetSupport
+      end
+    end
+  end
+  #
+  #
+  module TweetSupport
+    def screen_name
+      self.user.screen_name
+    end
+    def image_url
+      self.user.profile_image_url_https || self.user.profile_image_url
     end
   end
 end

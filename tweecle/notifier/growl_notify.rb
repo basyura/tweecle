@@ -20,7 +20,7 @@ class Tweecle
       def notify(tweet , type)
         type = ::GrowlNotify.notifications.include?(type) ? type : "notify"
         ::GrowlNotify.normal(
-          :title       => tweet.user.screen_name , 
+          :title       => tweet.screen_name , 
           :description => tweet.text ,
           :icon        => image_path(@config.images_dir , tweet) ,
           :with_name => type
@@ -31,7 +31,7 @@ class Tweecle
       #
       #
       def image_path(images_dir , tweet)
-        url = tweet.user.profile_image_url_https || tweet.user.profile_image_url
+        url = tweet.image_url
         return nil unless url =~ /profile_images\/(.*?)\/(.*)/
         path = File.join(images_dir , "#{$1}_#{$2}")
         unless File.exist?(path)
