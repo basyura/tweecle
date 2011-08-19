@@ -22,20 +22,20 @@ class Tweecle
         ::GrowlNotify.normal(
           :title       => tweet.user.screen_name , 
           :description => tweet.text ,
-          :icon        => image_path(@config.images_dir , 
-                                     tweet.user.profile_image_url_https) ,
-                                     :with_name   => type
+          :icon        => image_path(@config.images_dir , tweet) ,
+          :with_name => type
         )
       end
 
       private
       #
       #
-      def image_path(images_dir , profile_image_url)
-        return nil unless profile_image_url =~ /profile_images\/(.*?)\/(.*)/
-          path = File.join(images_dir , "#{$1}_#{$2}")
+      def image_path(images_dir , tweet)
+        url = tweet.user.profile_image_url_https || tweet.user.profile_image_url
+        return nil unless url =~ /profile_images\/(.*?)\/(.*)/
+        path = File.join(images_dir , "#{$1}_#{$2}")
         unless File.exist?(path)
-          `curl --silent -o #{path} #{profile_image_url}`
+          `curl --silent -o #{path} #{url}`
         end
         path
       end
