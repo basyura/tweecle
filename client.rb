@@ -8,7 +8,7 @@ while true
   begin
     tweecle.crawl(:list_statuses , 'basyura' , 'all')
     tweecle.crawl(:replies)
-    #tweecle.crawl(:search , '#llplanets')
+    tweecle.crawl(:search , '#llplanets')
     sleep 30
   rescue => e
     puts e

@@ -1,15 +1,15 @@
 
 class Tweecle
   class Notifier
-    class GrowlNotify
+    class GrowlNotify < Base
       #
       #
       def initialize(config)
         @config = config
         require 'growl_notify'
         ::GrowlNotify.config do |gconf|
-          gconf.application_name      = "tweecle"
-          gconf.notifications         = ["notify" , "replies"]
+          gconf.application_name      = app_name
+          gconf.notifications         = notification_kinds
           gconf.default_notifications = ["notify"] 
         end
         # to save icons

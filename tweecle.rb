@@ -19,6 +19,7 @@
   config
   notifier
   rubytter
+  notifier/base
   notifier/ruby_gntp
   notifier/growl_notify
 ).each { |name| require File.expand_path("../tweecle/#{name}", __FILE__) }
