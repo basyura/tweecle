@@ -19,6 +19,11 @@ class Tweecle
     end
     #
     #
+    def respond_to?(method)
+      @client.respond_to?(method)
+    end
+    #
+    #
     def method_missing(method , *args)
       @client.__send__(method , *args).reverse.map do |tweet|
         tweet.extend TweetSupport
