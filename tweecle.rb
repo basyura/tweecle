@@ -42,8 +42,8 @@ class Tweecle
         instance_eval(&block)
       rescue => e
         puts e
-        sleep interval
       end
+      sleep interval
     end
   end
   #
