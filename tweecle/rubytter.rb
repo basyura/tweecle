@@ -5,17 +5,23 @@ class Tweecle
     #
     #
     def initialize(config)
+      proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : nil
       consumer = OAuth::Consumer.new(
         config.consumer_key     ,
         config.consumer_secret ,
-        :site => 'https://api.twitter.com'
+        {
+          :site  => 'https://api.twitter.com' ,
+          :proxy => proxy ,
+        }
       )
       access_token = OAuth::AccessToken.new(
         consumer ,
         config.access_token ,
         config.access_token_secret
       )
-      @client = OAuthRubytter.new(access_token)
+      option = {}
+      option.merge(:proxy_host => proxy.host , :proxy_port => proxy.port) if proxy
+      @client = OAuthRubytter.new(access_token , option)
     end
     #
     #
