@@ -5,5 +5,4 @@ require './tweecle'
 Tweecle.new("config.yaml" , STDOUT).crawl(30) do
   replies
   list_statuses 'basyura' , 'all'
-#  search '#llplanets'
 end
