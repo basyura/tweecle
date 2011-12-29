@@ -33,6 +33,7 @@ class Tweecle
     @rubytter = Tweecle::Rubytter.new(@config)
     @notifier = Tweecle::Notifier.new(@config)
     @out      = out
+    @notified = {}
   end
   #
   #
@@ -54,9 +55,10 @@ class Tweecle
       since_id = pstore[:since_id] ||= 0
       tweets(method , *params).each do |tweet|
         next if since_id >= tweet.id
-        notify(tweet , method)
+        if notify(tweet , method)
+          count += 1
+        end
         pstore[:since_id] = tweet.id
-        count += 1
 
         log "-".ljust(100 , "-")
         log "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
@@ -89,7 +91,13 @@ class Tweecle
   #
   #
   def notify(tweet , method)
-    @notifier.notify(tweet , method)
+    unless @notified.include?(tweet.id)
+      @notifier.notify(tweet , method)
+      @notified[tweet.id] = true
+      true
+    else
+      false
+    end
   end
   #
   #
