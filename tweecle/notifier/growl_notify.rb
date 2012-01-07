@@ -20,20 +20,21 @@ class Tweecle
       def notify(tweet , type)
         type = ::GrowlNotify.notifications.include?(type) ? type : "notify"
 
-        cmd = "growlnotify  -t '#{tweet.screen_name}'"
-        image_path = image_path(@config.images_dir , tweet)
-        if image_path
-          cmd << " --image #{image_path}"
-        end
-        cmd << " -m '#{tweet.text}' -n tweecle -p #{type}"
-        `#{cmd}`
+        #cmd = "growlnotify  -t '#{tweet.screen_name}'"
+        #image_path = image_path(@config.images_dir , tweet)
+        #if image_path
+          #cmd << " --image #{image_path}"
+        #end
+        #cmd << " -m '#{tweet.text}' -n tweecle -p #{type}"
+        #`#{cmd}`
 
-        #::GrowlNotify.normal(
-        #  :title       => tweet.screen_name , 
-        #  :description => tweet.text ,
-        #  :icon        => image_path(@config.images_dir , tweet) ,
-        #  :with_name => type
-        #)
+        ::GrowlNotify.normal(
+         :application_name => app_name ,
+         :title       => tweet.screen_name , 
+         :description => tweet.text ,
+         :icon        => image_path(@config.images_dir , tweet) ,
+         :with_name => type
+        )
       end
 
       private
