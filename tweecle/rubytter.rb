@@ -5,7 +5,12 @@ class Tweecle
     #
     #
     def initialize(config)
-      proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : nil
+      proxy = ENV['http_proxy']
+      if proxy
+        proxy = 'http://' + proxy if proxy !~ /^http/
+        proxy = URI.parse(proxy)
+      end
+
       consumer = OAuth::Consumer.new(
         config.consumer_key     ,
         config.consumer_secret ,
