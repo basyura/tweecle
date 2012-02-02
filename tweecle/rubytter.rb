@@ -6,6 +6,7 @@ class Tweecle
     #
     def initialize(config)
       proxy = ENV['http_proxy']
+      proxy = proxy && proxy != '' ? proxy : nil
       if proxy
         proxy = 'http://' + proxy if proxy !~ /^http/
         proxy = URI.parse(proxy)
