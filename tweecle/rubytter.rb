@@ -36,6 +36,12 @@ class Tweecle
     end
     #
     #
+    #
+    def verify_credentials
+      @client.verify_credentials
+    end
+    #
+    #
     def method_missing(method , *args)
       @client.__send__(method , *args).reverse.map do |tweet|
         tweet.extend TweetSupport

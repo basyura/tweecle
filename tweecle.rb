@@ -34,6 +34,7 @@ class Tweecle
     @notifier = Tweecle::Notifier.new(@config)
     @out      = out
     @notified = {}
+    @user     = @rubytter.verify_credentials
   end
   #
   #
@@ -60,9 +61,14 @@ class Tweecle
         end
         pstore[:since_id] = tweet.id
 
-        log "-".ljust(100 , "-")
-        log "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
-            " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
+        msg = "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
+              " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
+        if tweet.text =~ /@#{@user.screen_name}/
+          msg = "\033[43m\033[30m" + msg + "\033[0m"
+        end
+
+        log "\033[36m" + "-".ljust(80 , "-") + "\033[0m"
+        log msg
 
         if count % @config.notify_number == 0 &&  count != 0
           sleep @config.sleeping_seconds 
