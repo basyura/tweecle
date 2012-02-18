@@ -61,10 +61,11 @@ class Tweecle
         end
         pstore[:since_id] = tweet.id
 
-        msg = "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
+        msg = "#{tweet.screen_name.ljust(ENV['COLUMNS'].to_i)} : #{tweet.text}" + 
               " (#{Time.parse(tweet.created_at).strftime('%H:%M:%S')})"
         if tweet.text =~ /@#{@user.screen_name}/
-          msg = "\033[43m\033[30m" + msg + "\033[0m"
+          #msg = "\033[43m\033[30m" + msg + "\033[0m"
+          msg = "\033[33m" + msg + "\033[0m"
         end
 
         log "\033[36m" + "-".ljust(80 , "-") + "\033[0m"
