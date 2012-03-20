@@ -29,11 +29,11 @@
 class Tweecle
   #
   #
-  def initialize(config_path , out = nil)
-    @config   = Tweecle::Config.new(config_path)
+  def initialize(config = {})
+    @config   = Tweecle::Config.new(config)
     @rubytter = Tweecle::Rubytter.new(@config)
     @notifier = Tweecle::Notifier.new(@config)
-    @out      = out
+    @out      = @config.out
     @notified = {}
     @user     = @rubytter.verify_credentials
   end
@@ -57,9 +57,7 @@ class Tweecle
       since_id = pstore[:since_id] ||= 0
       tweets(method , *params).each do |tweet|
         next if since_id >= tweet.id
-        if notify(tweet , method)
-          count += 1
-        end
+        count += 1 if notify(tweet , method)
         pstore[:since_id] = tweet.id
 
         msg = "#{tweet.screen_name.ljust(15)} : #{tweet.text}" + 
@@ -77,7 +75,6 @@ class Tweecle
       end
     end
     sleep @config.sleeping_seconds if count > 0
-    count
   end
   #
   #

@@ -2,7 +2,19 @@
 
 require './tweecle'
 
-Tweecle.new("config.yaml" , STDOUT).crawl(30) do
+=begin
+config = {
+  :consumer_key        => '....',
+  :consumer_secret     => '....',
+  :access_token        => '....',
+  :access_token_secret => '....',
+}
+=end
+
+config = YAML.load(open('./config.yaml').read)
+
+Tweecle.new(config).crawl(30) do
   replies
-  list_statuses 'basyura' , 'all'
+  list_statuses 'basyura', 'all'
+  search 'tweetvim'
 end
